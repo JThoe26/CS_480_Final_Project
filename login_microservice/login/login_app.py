@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# In-memory user storage for demonstration purposes
+# In-memory user storage for simplicity
 users = {
     "user1": "password1",
     "user2": "password2"
