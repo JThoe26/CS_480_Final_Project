@@ -1,0 +1,48 @@
+services:
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - app-network
+
+  login:
+    build:
+      context: ./login_microservice
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.login.rule=Host(`login.localhost`)"
+      - "traefik.http.services.login.loadbalancer.server.port=5002"
+    networks:
+      - app-network
+
+  notification:
+    build:
+      context: ./notification_service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notification.rule=Host(`notification.localhost`)"
+      - "traefik.http.services.notification.loadbalancer.server.port=5001"
+    networks:
+      - app-network
+
+  database:
+    build:
+      context: ./database_microservice
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.database.rule=Host(`database.localhost`)"
+      - "traefik.http.services.databse.loadbalancer.server.port=5003"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
